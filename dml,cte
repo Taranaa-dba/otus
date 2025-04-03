@@ -1,0 +1,110 @@
+1)Создаем таблицу и наполните ее данными  
+
+CREATE TABLE statistic(
+player_name VARCHAR(100) NOT NULL,
+player_id INT NOT NULL,
+year_game SMALLINT NOT NULL CHECK (year_game > 0),
+points DECIMAL(12,2) CHECK (points >= 0),
+PRIMARY KEY (player_name,year_game));
+
+
+INSERT INTO statistic(player_name, player_id, year_game, points) VALUES ('Misha',1,2018,18), ('Jora',2,2018,14), ('Jenya',3,2018,30), ('Givi',4,2018,30), ('Ilya',1,2019,16), ('Misha',2,2019,14), ('Jora',3,2019,15), ('Jenya',4,2019,28), ('Givi',5,2019,25), ('Ilya',1,2020,19), ('Misha',2,2020,17), ('Jora',3,2020,18), ('Jenya',4,2020,29), ('Givi',5,2020,27); 
+
+
+| player_name | player_id | year_game | points |
+|-----------| ---------|---------|------|
+|Misha|1|2018|18.00|
+|Jora|2|2018|14.00|
+|Jenya|3|2018|30.00|
+|Givi|4|2018|30.00|
+|Ilya|1|2019|16.00|
+|Misha|2|2019|14.00|
+|Jora|3|2019|15.00|
+|Jenya|4|2019|28.00|
+|Givi|5|2019|25.00|
+|Ilya|1|2020|19.00|
+|Misha|2|2020|17.00|
+|Jora|3|2020|18.00|
+|Jenya|4|2020|29.00|
+|Givi|5|2020|27.00|
+
+2)Запрос суммы очков с группировкой и сортировкой по годам
+
+select year_game, sum(s.points) as total_points
+from statistic s
+group by s.year_game
+order by s.year_game;
+
+|year_game	|total_points|
+|-----------|------------|
+|2018	|92.00|
+|2019	|98.00|
+|2020	|110.00|
+
+3)cte показывающее тоже самое
+
+WITH YearlyPoints AS (
+    SELECT year_game, SUM(points) AS total_points
+    FROM statistic
+    GROUP BY year_game
+)
+SELECT year_game, total_points
+FROM YearlyPoints
+ORDER BY year_game;
+
+|year_game	|total_points|
+|-----------|------------|
+|2018	|92.00|
+|2019	|98.00|
+|2020	|110.00|
+
+4)Использование функции LAG для выведения кол-во очков по всем игрокам за текущий код и за предыдущий.
+
+WITH YearlyPoints AS (
+    SELECT
+        year_game,
+        player_id,
+        player_name,
+        SUM(points) AS total_points
+    FROM
+        statistic
+    GROUP BY
+        year_game, player_id, player_name
+),
+PlayerPointsWithLag AS (
+    SELECT
+        year_game,
+        player_id,
+        player_name,
+        total_points,
+        LAG(total_points) OVER (PARTITION BY player_id ORDER BY year_game) AS previous_year_points
+    FROM
+        YearlyPoints
+)
+SELECT
+    year_game,
+    player_id,
+    player_name,
+    total_points,
+    previous_year_points
+FROM
+    PlayerPointsWithLag
+ORDER BY
+    player_id, year_game;
+```
+|year_game|player_id|player_name|total_points|previous_year_points|
+|-|-|-|-|-|
+|2018|1|Misha|18.00|NULL|
+|2019|1|Ilya|16.00|18.00|
+|2020|1|Ilya|19.00|16.00|
+|2018|2|Jora|14.00|NULL|
+|2019|2|Misha|14.00|14.00|
+|2020|2|Misha|17.00|14.00|
+|2018|3|Jenya|30.00|NULL|
+|2019|3|Jora|15.00|30.00|
+|2020|3|Jora|18.00|15.00|
+|2018|4|Givi|30.00|NULL|
+|2019|4|Jenya|28.00|30.00|
+|2020|4|Jenya|29.00|28.00|
+|2019|5|Givi|25.00|NULL|
+|2020|5|Givi|27.00|25.00|

@@ -1,0 +1,26 @@
+1)Судя по данным проекта - типы данных бд не буду.
+2)Добавляю josn к таблице Products для хранения отзывов о товаре.  
+
+ALTER TABLE Products
+ADD COLUMN reviews JSON;
+
+ Вставка данных в таблицу Products с полем JSON для отзывов
+
+INSERT INTO Products (name, description, category_id, supplier_id, manufacturer_id, reviews) VALUES
+('Smartphone', 'A high-end smartphone', 1, 1, 1, '{"reviewer": "John Doe", "rating": 5, "comment": "Great phone!"}'),
+('T-Shirt', 'A comfortable cotton t-shirt', 2, 2, 2, '{"reviewer": "Jane Smith", "rating": 4, "comment": "Nice fit!"}'),
+('Novel', 'An exciting adventure novel', 3, 3, 3, '{"reviewer": "Alice Johnson", "rating": 5, "comment": "Engaging story!"}');
+
+ Получение продуктов с фильтрацией по рейтингу в отзывах:
+SELECT
+    product_id,
+    name,
+    description,
+    category_id,
+    supplier_id,
+    manufacturer_id,
+    reviews
+FROM
+    Products
+WHERE
+    JSON_UNQUOTE(JSON_EXTRACT(reviews, '$.rating')) >= 4;
