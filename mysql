@@ -1,5 +1,63 @@
 MySQL
 
+cd otus-mysql-docker
+
+Создание SQL скрипта
+В файле init.sql создадим скрипт для создания базы данных и таблиц:
+
+-- Создаем базу данных
+CREATE DATABASE otus_db;
+
+-- Переходим в созданную базу данных
+USE otus_db;
+
+-- Создаем таблицу пользователей
+CREATE TABLE users (
+id INT AUTO_INCREMENT PRIMARY KEY,
+username VARCHAR(50) NOT NULL UNIQUE,
+email VARCHAR(100) NOT NULL UNIQUE,
+created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Создаем таблицу продуктов
+CREATE TABLE products (
+id INT AUTO_INCREMENT PRIMARY KEY,
+name VARCHAR(100) NOT NULL,
+price DECIMAL(10, 2) NOT NULL,
+description TEXT,
+created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Добавляем тестовые данные
+INSERT INTO users (username, email)
+VALUES
+('user1', 'user1@example.com'),
+('user2', 'user2@example.com');
+
+INSERT INTO products (name, price, description)
+VALUES
+('Product 1', 100.50, 'Описание продукта 1'),
+('Product 2', 200.75, 'Описание продукта 2');
+
+# Создаем сеть для контейнера
+docker network create mysql-network
+
+# Запускаем контейнер
+docker compose up -d
+
+4. Проверка работы
+Проверка статуса контейнера:
+docker ps
+Подключение к MySQL:
+docker exec -it mysql_container bash
+mysql -u root -p
+В MySQL клиенте:
+SHOW DATABASES;
+USE otus_db;
+SHOW TABLES;
+SELECT * FROM users;
+SELECT * FROM products;
+
 root@mysql001-otus:/install# systemctl status mysql.service
 ● mysql.service - MySQL Community Server
      Loaded: loaded (/usr/lib/systemd/system/mysql.service; enabled; preset: enabled)
