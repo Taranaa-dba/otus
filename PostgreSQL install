@@ -12,7 +12,7 @@ Sep 21 19:36:58 pg0-otus systemd[1]: Finished postgresql.service - PostgreSQL RD
 
 root@pg0-otus:~# ss -tunlp  
 Netid          State           Recv-Q          Send-Q                   Local Address:Port                    Peer Address:Port         Process  
-tcp            LISTEN          0               244                      192.168.00.03:5432                         0.0.0.0:*             users:(("postgres",pid=6414,fd=5))
+tcp            LISTEN          0               244                      192.168.00.03:5432                         0.0.0.0:*             users:(("postgres",pid=4430,fd=5))
 
           server_version
 ----------------------------------
